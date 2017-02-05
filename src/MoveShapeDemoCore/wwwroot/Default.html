@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR MoveShape Demo</title>
+    <style>
+        #circle1 {
+            width: 50px;
+            height: 50px;
+            background: blue;
+            -moz-border-radius: 50px;
+            -webkit-border-radius: 50px;
+            border-radius: 50px;
+            position:absolute;
+            left:200px;
+            top:200px;
+        }
+    </style>
+</head>
+<body>
+
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.0.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.2.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script src="Default.js"></script>
+    <input id="textbox" type="text" />
+    <div id="circles">
+        <div id="circle0"></div>
+    </div>
+</body>
+</html>
