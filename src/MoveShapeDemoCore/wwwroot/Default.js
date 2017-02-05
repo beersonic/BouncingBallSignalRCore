@@ -13,25 +13,24 @@ moveShapeHub.client.updateBallInfo = function (id, ball) {
         addCircle(circleId, x, y);
     }
     else {
-        textbox.value = "id=" + circleId + " left=" + x + " top=" + y;
-        
-        $('#' + circleId).css({ left: x + 'px', top: y + 'px', position: 'absolute', width:radius+'px', height:radius+'px' });
+        var d = radius * 2;
+        $('#' + circleId).css({ left: x + 'px', top: y + 'px', position: 'absolute', width:d+'px', height:d+'px' });
     }
 }
 
 moveShapeHub.client.removeBall = function (id)
 {
     var circleId = "circle" + id;
+    textbox.value = "remove circle id=" + circleId;
     $('#' + circleId).remove();
 }
 
 var addCircle = function (newid, x, y) {
-    //$c = $("#circle").clone();
-    //$c.css({ left: x + 'px', top: y + 'px', position: 'absolute'});
-    //$c.appendTo("#circles");
+    //var $circleNew = $("#circle0").clone().prop('id', newid);
+    //$circleNew.appendTo("#circles");
 
-    var $circleNew = $("#circle0").clone().prop('id', newid);
-    $circleNew.appendTo("#circles");
+    var $newdiv = $("<div id='" + newid + "' class='circle'></div>");
+    $newdiv.css({ left: x + 'px', top: y + 'px' }).appendTo("#circles");
 }
 
 $.connection.hub.logging = true;

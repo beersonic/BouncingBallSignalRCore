@@ -72,7 +72,52 @@ namespace MoveShapeDemoCore
 
         private void CheckCollision()
         {
-            // TODO:
+            foreach (var kvp1 in _dictBall)
+            {
+                foreach (var kvp2 in _dictBall)
+                {
+                    if (kvp1.Key != kvp2.Key)
+                    {
+                        var bi1 = kvp1.Value;
+                        var bi2 = kvp2.Value;
+
+                        double x1 = bi1.Left;
+                        double y1 = bi1.Top;
+
+                        double x2 = bi2.Left;
+                        double y2 = bi2.Top;
+
+                        double dx = Math.Abs(x1 - x2);
+                        double dy = Math.Abs(y1 - y2);
+                        double diff = Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
+                        if (diff <= RADIUS * 2)
+                        {
+                            // collision logic
+                            if (x1 > x2)
+                            {
+                                bi1.DirectionX *= -1;
+                                bi1.DirectionY *= -1;
+
+                                bi2.DirectionX *= -1;
+                                bi2.DirectionY *= -1;
+                            }
+                        }
+
+                        if (diff < RADIUS * 2)
+                        {
+                            double dx2 = Math.Sqrt(Math.Pow(RADIUS * 2, 2) - Math.Pow(dy, 2));
+                            if (x2 > x1)
+                            {
+                                bi2.Left = x1 + dx2;
+                            }
+                            else
+                            {
+                                bi2.Left = x1 - dx2;   
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void CalculateNewBallPosition(ref BallInfo bi)
