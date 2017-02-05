@@ -1,11 +1,10 @@
 ﻿var moveShapeHub = $.connection.moveShapeHub;
 
-var dict;
-
 moveShapeHub.client.updateBallInfo = function (id, ball) {
     var textbox = document.getElementById('textbox');
     var x = ball.left;
     var y = ball.top;
+    var radius = ball.radius;
 
     var circleId = "circle" + id;
     var circleObj = document.getElementById(circleId);
@@ -16,8 +15,14 @@ moveShapeHub.client.updateBallInfo = function (id, ball) {
     else {
         textbox.value = "id=" + circleId + " left=" + x + " top=" + y;
         
-        $('#' + circleId).css({ left: x + 'px', top: y + 'px', position: 'absolute' });
+        $('#' + circleId).css({ left: x + 'px', top: y + 'px', position: 'absolute', width:radius+'px', height:radius+'px' });
     }
+}
+
+moveShapeHub.client.removeBall = function (id)
+{
+    var circleId = "circle" + id;
+    $('#' + circleId).remove();
 }
 
 var addCircle = function (newid, x, y) {

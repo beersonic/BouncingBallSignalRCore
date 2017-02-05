@@ -10,12 +10,15 @@ namespace MoveShapeDemoCore
 {
     public class PositionCalculator
     {
-        Dictionary<int, BallInfo> _dictBall;
-        int _id = 0;
         const int MAX_X = 500;
         const int MAX_Y = 500;
+        const int REFRESH_RATE_MS = 20;
+        const int RADIUS = 30;
+        const int SPEED = 3;
+
+        Dictionary<int, BallInfo> _dictBall;
+        int _id = 0;
         Random _rand;
-        const int REFRESH_RATE_MS = 500;
 
         // Singleton instance
         private readonly static Lazy<PositionCalculator> _instance = new Lazy<PositionCalculator>(
@@ -51,14 +54,15 @@ namespace MoveShapeDemoCore
                        else
                        {
                            List<int> keys = new List<int>(_dictBall.Keys);
+                           Thread.Sleep(REFRESH_RATE_MS);
                            foreach (int key in keys)
                            {
-                               Thread.Sleep(REFRESH_RATE_MS);
-
                                var bi = _dictBall[key];
                                CalculateNewBallPosition(ref bi);
                                _context.Clients.All.updateBallInfo(key, bi);
                            }
+
+                           CheckCollision();
                        }
                    }
                    
@@ -66,12 +70,30 @@ namespace MoveShapeDemoCore
            });
         }
 
+        private void CheckCollision()
+        {
+            // TODO:
+        }
+
         private void CalculateNewBallPosition(ref BallInfo bi)
         {
-            bi.Left = _rand.Next(MAX_X);
-            bi.Top = _rand.Next(MAX_Y);
+            bi.Left += bi.DirectionX;
+            if (bi.Left >= MAX_X || bi.Left <= 0)
+            {
+                bi.DirectionX *= -1;
+                bi.Left += bi.DirectionX;
+            }
+
+            bi.Top += bi.DirectionY;
+            if (bi.Top >= MAX_Y ||bi.Top <= 0)
+            {
+                bi.DirectionY *= -1;
+                bi.Top += bi.DirectionY;
+            }
+            
         }
-        public void AddBall()
+
+        public int AddBall()
         {
             int x = _rand.Next(MAX_X);
             int y = _rand.Next(MAX_Y);
@@ -79,10 +101,26 @@ namespace MoveShapeDemoCore
             var ballInfo = new BallInfo();
             ballInfo.Left = x;
             ballInfo.Top = y;
+            ballInfo.Radius = RADIUS;
 
+            double angle = _rand.Next(90);
+            ballInfo.DirectionX = Math.Cos(angle) * SPEED;
+            ballInfo.DirectionY = Math.Sin(angle) * SPEED;
+
+            int id = _id++;
             lock (_dictBall)
             {
-                _dictBall[_id++] = ballInfo;
+                _dictBall[id] = ballInfo;
+            }
+            return id;
+        }
+
+        public void RemoveBall(int id)
+        {
+            lock(_dictBall)
+            {
+                _dictBall.Remove(id);
+                _context.Clients.All.removeBall(id);
             }
         }
     }

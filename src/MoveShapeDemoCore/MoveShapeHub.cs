@@ -11,39 +11,30 @@ namespace MoveShapeDemoCore
     public class MoveShapeHub : Hub
     {
         private readonly PositionCalculator _positionCalculator;
-        
+
+        static Dictionary<string, int> _dictConnIdToBallId = new Dictionary<string, int>();
         public MoveShapeHub() : this(PositionCalculator.Instance) { }
         public MoveShapeHub(PositionCalculator positionCalculator)
         {
             _positionCalculator = positionCalculator;
         }
 
-        public void UpdateModel(ShapeModel clientModel)
-        {
-            clientModel.LastUpdatedBy = Context.ConnectionId;
-            // Update the shape model within our broadcaster
-            Clients.AllExcept(clientModel.LastUpdatedBy).updateShape(clientModel);
-        }
-
         public override Task OnConnected()
         {
+            _dictConnIdToBallId[Context.ConnectionId] = _positionCalculator.AddBall();
 
-
-
-            _positionCalculator.AddBall();
             return base.OnConnected();
         }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            if (_dictConnIdToBallId.ContainsKey(Context.ConnectionId))
+            {
+                int id = _dictConnIdToBallId[Context.ConnectionId];
+                _positionCalculator.RemoveBall(id);
+            }
+            return base.OnDisconnected(stopCalled);
+        }
     }
-    public class ShapeModel
-    {
-        // We declare Left and Top as lowercase with 
-        // JsonProperty to sync the client and server models
-        [JsonProperty("left")]
-        public double Left { get; set; }
-        [JsonProperty("top")]
-        public double Top { get; set; }
-        // We don't want the client to get the "LastUpdatedBy" property
-        [JsonIgnore]
-        public string LastUpdatedBy { get; set; }
-    }
+
 }

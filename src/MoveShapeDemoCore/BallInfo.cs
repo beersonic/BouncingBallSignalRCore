@@ -13,5 +13,11 @@ namespace MoveShapeDemoCore
 
         [JsonProperty("top")]
         public double Top { get; set; }
+
+        [JsonProperty("radius")]
+        public double Radius { get; set; }
+
+        public double DirectionX { get; set; }
+        public double DirectionY { get; set; }
     }
 }

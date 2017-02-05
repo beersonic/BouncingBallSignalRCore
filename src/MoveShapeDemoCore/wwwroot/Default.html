@@ -3,7 +3,7 @@
 <head>
     <title>SignalR MoveShape Demo</title>
     <style>
-        #circle1 {
+        div.circle{
             width: 50px;
             height: 50px;
             background: blue;
@@ -11,21 +11,37 @@
             -webkit-border-radius: 50px;
             border-radius: 50px;
             position:absolute;
-            left:200px;
-            top:200px;
         }
     </style>
 </head>
 <body>
-
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.0.min.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.2.1.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="/signalr/hubs"></script>
     <script src="Default.js"></script>
     <input id="textbox" type="text" />
+
+    <!--
+    <canvas id="myCanvas" width="800" height="800" style="border:1px solid #000000;"></canvas>
+    <script>
+      var canvas = document.getElementById('myCanvas');
+      var context = canvas.getContext('2d');
+      var centerX = canvas.width / 2;
+      var centerY = canvas.height / 2;
+      var radius = 10;
+
+      context.beginPath();
+      context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+      context.fillStyle = 'green';
+      context.fill();
+      context.lineWidth = 1;
+      context.strokeStyle = '#003300';
+      context.stroke();
+    </script>
+        -->
     <div id="circles">
-        <div id="circle0"></div>
+        <div id="circle0" class="circle" ></div>
     </div>
 </body>
 </html>
