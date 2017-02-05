@@ -35,16 +35,16 @@ namespace MoveShapeDemoCore
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseStaticFiles();
             app.UseWebSockets();
             app.UseSignalR();
 
             ConnectionManager = serviceProvider.GetService<IConnectionManager>();
-
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Hello World!");
-            });
+      
+            DefaultFilesOptions DefaultFile = new DefaultFilesOptions();
+            DefaultFile.DefaultFileNames.Clear();
+            DefaultFile.DefaultFileNames.Add("Default.html");
+            app.UseDefaultFiles(DefaultFile);
+            app.UseStaticFiles();
         }
     }
 }
