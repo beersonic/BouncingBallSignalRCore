@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,66 +7,46 @@ using System.Threading.Tasks;
 
 namespace MoveShapeDemoCore
 {
-    public class PositionCalculator
+    public class PositionCalculator : IPositionCalculator
     {
         const int MAX_X = 500;
         const int MAX_Y = 500;
-        const int REFRESH_RATE_MS = 20;
         const int RADIUS = 30;
         const int SPEED = 3;
 
-        Dictionary<int, BallInfo> _dictBall;
+        Dictionary<int, BallInfo> _dictBall = new Dictionary<int, BallInfo>();
         int _id = 0;
         Random _rand;
 
-        // Singleton instance
-        private readonly static Lazy<PositionCalculator> _instance = new Lazy<PositionCalculator>(
-            () => new PositionCalculator(Startup.ConnectionManager.GetHubContext<MoveShapeHub>()));
+        public delegate void OnUpdateBallInfo(int id, BallInfo bi);
+        public delegate void OnBallRemove(int id);
 
-        private IHubContext _context;
-        Task _task = null;
-        public static PositionCalculator Instance
+        public event OnBallRemove OnBallRemoveCallback = delegate { } ;
+        public event OnUpdateBallInfo OnBallInfoUpdateCallback = delegate { };
+
+        public Dictionary<int, BallInfo> GetBalls()
         {
-            get
-            {
-                return _instance.Value;
-            }
+            return _dictBall;
         }
-        private PositionCalculator(IHubContext context)
+
+        public PositionCalculator()
         {
             _dictBall = new Dictionary<int, BallInfo>();
-            _context = context;
             _rand = new Random();
+        }
 
-            // async task
-            _task = Task.Run(() =>
-           {
-               while (true)
-               {
-                   
-                   lock(_dictBall)
-                   {
-                       if (_dictBall.Count == 0)
-                       {
-                           Thread.Sleep(500);
-                       }
-                       else
-                       {
-                           List<int> keys = new List<int>(_dictBall.Keys);
-                           Thread.Sleep(REFRESH_RATE_MS);
-                           foreach (int key in keys)
-                           {
-                               var bi = _dictBall[key];
-                               CalculateNewBallPosition(ref bi);
-                               _context.Clients.All.updateBallInfo(key, bi);
-                           }
-
-                           CheckCollision();
-                       }
-                   }
-                   
-               }
-           });
+        public void UpdateBallPosition()
+        {
+            lock (_dictBall)
+            {
+                foreach (var kvp in _dictBall)
+                {
+                    var bi = _dictBall[kvp.Key];
+                    CalculateNewBallPosition(ref bi);
+                    CheckCollision();
+                    OnBallInfoUpdateCallback(kvp.Key, kvp.Value);
+                }
+            }
         }
 
         private void CheckCollision()
@@ -157,6 +136,7 @@ namespace MoveShapeDemoCore
             {
                 _dictBall[id] = ballInfo;
             }
+
             return id;
         }
 
@@ -165,8 +145,13 @@ namespace MoveShapeDemoCore
             lock(_dictBall)
             {
                 _dictBall.Remove(id);
-                _context.Clients.All.removeBall(id);
+                OnBallRemoveCallback(id);
             }
+        }
+
+        public int GetBallCount()
+        {
+            return _dictBall.Count;
         }
     }
 }

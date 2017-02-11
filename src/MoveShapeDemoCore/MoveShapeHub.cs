@@ -4,34 +4,52 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace MoveShapeDemoCore
 {
 
     public class MoveShapeHub : Hub
     {
-        private readonly PositionCalculator _positionCalculator;
-
         static Dictionary<string, int> _dictConnIdToBallId = new Dictionary<string, int>();
-        public MoveShapeHub() : this(PositionCalculator.Instance) { }
-        public MoveShapeHub(PositionCalculator positionCalculator)
+        
+        IPositionCalculator _positionCalculator = null;
+
+        public MoveShapeHub()
         {
-            _positionCalculator = positionCalculator;
+            _positionCalculator = PositionCalculatorFactory.Instance.GetPositionCalculator();
+            _positionCalculator.OnBallInfoUpdateCallback += _positionCalculator_OnBallInfoCallback;
+            _positionCalculator.OnBallRemoveCallback += _positionCalculator_OnBallRemoveCallback;
+        }
+
+        private void _positionCalculator_OnBallRemoveCallback(int id)
+        {
+            Clients.All.removeBall(id);
+        }
+
+        private void _positionCalculator_OnBallInfoCallback(int id, BallInfo bi)
+        {
+            Clients.All.updateBallInfo(id, bi);
         }
 
         public override Task OnConnected()
         {
-            _dictConnIdToBallId[Context.ConnectionId] = _positionCalculator.AddBall();
-
+            lock (_dictConnIdToBallId)
+            {
+                _dictConnIdToBallId[Context.ConnectionId] = _positionCalculator.AddBall();
+            }
             return base.OnConnected();
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
-            if (_dictConnIdToBallId.ContainsKey(Context.ConnectionId))
+            lock (_dictConnIdToBallId)
             {
-                int id = _dictConnIdToBallId[Context.ConnectionId];
-                _positionCalculator.RemoveBall(id);
+                if (_dictConnIdToBallId.ContainsKey(Context.ConnectionId))
+                {
+                    int id = _dictConnIdToBallId[Context.ConnectionId];
+                    _positionCalculator.RemoveBall(id);
+                }
             }
             return base.OnDisconnected(stopCalled);
         }
