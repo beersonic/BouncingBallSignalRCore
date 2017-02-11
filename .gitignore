@@ -2,3 +2,10 @@
 /.vs
 /src/MoveShapeDemoCore/bin/Debug/netcoreapp1.0
 /src/MoveShapeDemoCore/obj/Debug/netcoreapp1.0
+/src/UnitTest/bin/Debug/netcoreapp1.0
+/src/UnitTest/obj/Debug/netcoreapp1.0/.IncrementalCache
+/src/UnitTest/obj/Debug/netcoreapp1.0/.SDKVersion
+/src/UnitTest/obj/Debug/netcoreapp1.0/dotnet-compile-csc.rsp
+/src/UnitTest/obj/Debug/netcoreapp1.0/dotnet-compile.assemblyinfo.cs
+/src/UnitTest/obj/Debug/netcoreapp1.0/dotnet-compile.rsp
+/src/UnitTest/project.lock.json
